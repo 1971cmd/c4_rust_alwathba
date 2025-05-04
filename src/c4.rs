@@ -1,11 +1,12 @@
 // src/c4.rs
 use std::collections::HashMap;
 use std::fmt;
+
 /// Custom error type for lexer and parser operations.
 ///
 /// Provides better error handling with context about where the error occurred
 /// and what caused it, leveraging Rust's error handling ecosystem.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone,PartialEq)]
 pub struct CompilerError {
     message: String,
     line: i32,
@@ -788,7 +789,9 @@ mod tests {
         assert_eq!(lexer.next(), Ok(Token::Keyword("while".to_string())));
         assert_eq!(lexer.next(), Ok(Token::Keyword("return".to_string())));
         assert_eq!(lexer.next(), Ok(Token::Keyword("char".to_string())));
-        assert_eq!(lexer.next(), Ok(Token::Eof));
+        let result = lexer.next();
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), Token::Eof);
     }
     
     #[test]
@@ -802,7 +805,9 @@ mod tests {
         assert_eq!(lexer.next(), Ok(Token::Keyword("static".to_string())));
         assert_eq!(lexer.next(), Ok(Token::Keyword("extern".to_string())));
         assert_eq!(lexer.next(), Ok(Token::Keyword("const".to_string())));
-        assert_eq!(lexer.next(), Ok(Token::Eof));
+        let result = lexer.next();
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), Token::Eof);
     }
 
     #[test]
@@ -812,7 +817,9 @@ mod tests {
         assert_eq!(lexer.next(), Ok(Token::Id("x123".to_string())));
         assert_eq!(lexer.next(), Ok(Token::Id("printf".to_string())));
         assert_eq!(lexer.next(), Ok(Token::Id("_identifier".to_string())));
-        assert_eq!(lexer.next(), Ok(Token::Eof));
+        let result = lexer.next();
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), Token::Eof);
     }
 
     #[test]
@@ -822,7 +829,9 @@ mod tests {
         assert_eq!(lexer.next(), Ok(Token::Num(456)));
         assert_eq!(lexer.next(), Ok(Token::Num(0)));
         assert_eq!(lexer.next(), Ok(Token::Num(42)));
-        assert_eq!(lexer.next(), Ok(Token::Eof));
+        let result = lexer.next();
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), Token::Eof);
     }
 
     #[test]
@@ -845,7 +854,9 @@ mod tests {
         assert_eq!(lexer.next(), Ok(Token::Op("~".to_string())));
         assert_eq!(lexer.next(), Ok(Token::Op("++".to_string())));
         assert_eq!(lexer.next(), Ok(Token::Op("--".to_string())));
-        assert_eq!(lexer.next(), Ok(Token::Eof));
+        let result = lexer.next();
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), Token::Eof);
     }
 
     #[test]
@@ -853,7 +864,9 @@ mod tests {
         let mut lexer = Lexer::new("\"hello\" \"world\"");
         assert_eq!(lexer.next(), Ok(Token::String("hello".to_string())));
         assert_eq!(lexer.next(), Ok(Token::String("world".to_string())));
-        assert_eq!(lexer.next(), Ok(Token::Eof));
+        let result = lexer.next();
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), Token::Eof);
     }
 
     #[test]
@@ -861,7 +874,9 @@ mod tests {
         let mut lexer = Lexer::new("\"hello\\nworld\\\"\\\\\" \"tab\\t\"");
         assert_eq!(lexer.next(), Ok(Token::String("hello\nworld\"\\".to_string())));
         assert_eq!(lexer.next(), Ok(Token::String("tab\t".to_string())));
-        assert_eq!(lexer.next(), Ok(Token::Eof));
+        let result = lexer.next();
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), Token::Eof);
     }
 
     #[test]
@@ -873,7 +888,9 @@ mod tests {
         assert_eq!(lexer.next(), Ok(Token::Op("}".to_string())));
         assert_eq!(lexer.next(), Ok(Token::Op(";".to_string())));
         assert_eq!(lexer.next(), Ok(Token::Op(",".to_string())));
-        assert_eq!(lexer.next(), Ok(Token::Eof));
+        let result = lexer.next();
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), Token::Eof);
     }
 
     #[test]
@@ -889,7 +906,9 @@ mod tests {
         assert_eq!(lexer.next(), Ok(Token::Directive("define".to_string())));
         assert_eq!(lexer.next(), Ok(Token::Keyword("int".to_string())));
         assert_eq!(lexer.next(), Ok(Token::Id("x".to_string())));
-        assert_eq!(lexer.next(), Ok(Token::Eof));
+        let result = lexer.next();
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), Token::Eof);
         assert_eq!(lexer.line(), 3);
     }
 
@@ -898,7 +917,9 @@ mod tests {
         let mut lexer = Lexer::new("// comment\nint x");
         assert_eq!(lexer.next(), Ok(Token::Keyword("int".to_string())));
         assert_eq!(lexer.next(), Ok(Token::Id("x".to_string())));
-        assert_eq!(lexer.next(), Ok(Token::Eof));
+        let result = lexer.next();
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), Token::Eof);
         assert_eq!(lexer.line(), 2);
     }
 
@@ -907,7 +928,9 @@ mod tests {
         let mut lexer = Lexer::new("0xFF 0x123");
         assert_eq!(lexer.next(), Ok(Token::Num(255)));
         assert_eq!(lexer.next(), Ok(Token::Num(291)));
-        assert_eq!(lexer.next(), Ok(Token::Eof));
+        let result = lexer.next();
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), Token::Eof);
     }
 
     #[test]
@@ -915,7 +938,9 @@ mod tests {
         let mut lexer = Lexer::new("077 0123");
         assert_eq!(lexer.next(), Ok(Token::Num(63)));
         assert_eq!(lexer.next(), Ok(Token::Num(83)));
-        assert_eq!(lexer.next(), Ok(Token::Eof));
+        let result = lexer.next();
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), Token::Eof);
     }
 
     #[test]
